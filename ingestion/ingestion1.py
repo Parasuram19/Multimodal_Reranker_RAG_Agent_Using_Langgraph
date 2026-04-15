@@ -576,7 +576,6 @@
 #         traceback.print_exc()
 
 
-
 import os
 import uuid
 import asyncio
@@ -606,12 +605,12 @@ load_dotenv(override=True)
 # Constants
 # ---------------------------------------------------------------------------
 EMBEDDING_DIM = 1536
-EMBEDDING_MODEL = "gemini-embedding-2-preview"
+EMBEDDING_MODEL = "gemini-embedding-001"
 LLM_MODEL = os.getenv("GEMINI_MODEL")
 CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 300
 
-HARD_CODED_PDF_PATH = r"C:\Users\t91-labuser015568\Desktop\TCS_GEN_AI\multimodal-reranker-agentic-rag\data\RIL-Media-Release-RIL-Q2-FY2024-25-mini.pdf"
+HARD_CODED_PDF_PATH = r"C:\Users\t91-labuser015568\Desktop\TCS_GEN_AI\multimodal-reranker-agentic-rag\data\KB_Smart_Banking.pdf"
 
 # ---------------------------------------------------------------------------
 # Helpers

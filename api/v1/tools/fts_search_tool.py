@@ -34,7 +34,7 @@ _FTS_SQL = """
 
 
 @tool
-def fts_search(query: str, k: int = 5) -> list[dict]:
+def fts_search(query: str, k: int = 20) -> list[dict]:
     """
     Perform full-text (keyword) search against the Policy knowledge base.
     Returns chunks with content normalized to string.
