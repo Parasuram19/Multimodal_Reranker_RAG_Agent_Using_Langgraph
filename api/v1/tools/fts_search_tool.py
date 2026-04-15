@@ -15,34 +15,35 @@ load_dotenv(override=True)
 _RAW_CONN = os.getenv("PG_STR")
 _COLLECTION_NAME = "financial_rag"
 
+# FTS query updated to ONLY search Parent chunks
 _FTS_SQL = """
     SELECT
-        e.document                                               AS content,
-        e.cmetadata                                              AS metadata,
+        e.document                                                       AS content,
+        e.cmetadata                                                      AS metadata,
         ts_rank(
             to_tsvector('english', e.document),
             plainto_tsquery('english', %(query)s)
-        )                                                        AS fts_rank
+        )                                                                AS fts_rank
     FROM langchain_pg_embedding e
     JOIN langchain_pg_collection c ON c.uuid = e.collection_id
     WHERE c.name = %(collection)s
+      AND e.cmetadata->>'is_parent' = 'true'  -- <-- CRITICAL FIX: Ignore child duplicates
       AND to_tsvector('english', e.document)
           @@ plainto_tsquery('english', %(query)s)
     ORDER BY fts_rank DESC
     LIMIT %(k)s;
 """
 
-
 @tool
-def fts_search(query: str, k: int = 5) -> list[dict]:
+def fts_search(query: str, k: int = 20) -> list[dict]:
     """
     Perform full-text (keyword) search against the Policy knowledge base.
-    Returns chunks with content normalized to string.
+    Returns parent chunks with content normalized to string.
     """
     print(f"[fts_search] query='{query}', k={k}")
     
     if not _RAW_CONN:
-        print("[fts_search] ERROR: PG_CONNECTION_STRING not set")
+        print("[fts_search] ERROR: PG_STR not set")
         return []
     
     with psycopg.connect(_RAW_CONN, row_factory=dict_row) as conn:
@@ -74,5 +75,5 @@ def fts_search(query: str, k: int = 5) -> list[dict]:
         }
         results.append(chunk)
     
-    print(f"[fts_search] returned {len(results)} chunks")
+    print(f"[fts_search] returned {len(results)} parent chunks")
     return results

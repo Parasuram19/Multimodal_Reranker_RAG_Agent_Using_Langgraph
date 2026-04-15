@@ -43,7 +43,7 @@ def print_chunks(chunks, tool_name):
             print(f"   📊 Hybrid Score: {chunk['metadata']['hybrid_score']}")
 
 if __name__ == "__main__":
-    test_queries = ["EBITDA?", "Lower gas price"]
+    test_queries = ["which credit card variant has maximum credit limit range , give me the details about it ", "Maximum Age at Maturity ", "2.2 Interest Rate Card — Regular Customers "]
     
     for q in test_queries:
         print(f"\n🔍 TESTING QUERY: '{q}'")

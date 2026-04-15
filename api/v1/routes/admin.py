@@ -4,7 +4,7 @@ from api.v1.services.upload_service import process_and_ingest_document
 router = APIRouter(tags=["Admin"])
 
 
-@router.post("/upload")
+@router.post("/admin/upload")
 def upload_document(file: UploadFile = File(...)):
 
     if not file.filename.lower().endswith(".pdf"):
