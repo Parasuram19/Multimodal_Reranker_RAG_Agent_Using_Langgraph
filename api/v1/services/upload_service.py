@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 from fastapi import UploadFile
-from ingestion.ingestion import run_ingestion_pipeline 
+from ingestion.ingestion1 import run_ingestion_pipeline 
 
 def process_and_ingest_document(file: UploadFile) -> str:
     current_file = Path(__file__).resolve()

@@ -8,7 +8,7 @@ from core.helper import get_vector_store
 
 
 @tool
-def vector_search(query: str, k: int = 5) -> list[dict]:
+def vector_search(query: str, k: int = 20) -> list[dict]:
     """
     Perform semantic vector search against the Policy knowledge base.
     

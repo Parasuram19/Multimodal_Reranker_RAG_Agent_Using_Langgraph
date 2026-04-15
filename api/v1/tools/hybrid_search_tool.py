@@ -12,7 +12,7 @@ _RRF_K = 60
 
 
 @tool
-def hybrid_search(query: str, k: int = 5) -> list[dict]:
+def hybrid_search(query: str, k: int = 20) -> list[dict]:
     """
     Perform hybrid search (vector + full-text) using Reciprocal Rank Fusion.
     Returns chunks with content normalized to string.

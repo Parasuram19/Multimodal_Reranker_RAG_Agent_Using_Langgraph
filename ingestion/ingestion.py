@@ -1593,13 +1593,34 @@ def generate_document_metadata(doc_name: str, source_file: str,
     }
 
 
-def split_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
-    """Split text into overlapping character windows."""
-    chunks, start, step = [], 0, size - overlap
-    while start < len(text):
-        chunks.append(text[start:start + size])
-        start += step
-    return chunks
+from langchain_text_splitters import MarkdownHeaderTextSplitter
+
+def parse_with_markdown_header_split(self, file_path: str, base_meta: dict):
+    # 1. Convert PDF → Markdown using Docling
+    result = self.converter.convert(file_path)
+    md_text = result.document.export_to_markdown()
+    
+    # 2. Split by headers
+    headers_to_split_on = [("#", "H1"), ("##", "H2"), ("###", "H3")]
+    splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=headers_to_split_on,
+        strip_headers=True  # Don't duplicate header text in content
+    )
+    chunks = splitter.split_text(md_text)
+    
+    # 3. Attach your metadata + financial context
+    final_chunks = []
+    for idx, chunk in enumerate(chunks):
+        meta = {
+            **base_meta,
+            "chunk_index": idx,
+            "modality": "text",
+            "section_hierarchy": chunk.metadata,  # e.g., {"H1": "...", "H2": "..."}
+            "source_file": os.path.basename(file_path)
+        }
+        final_chunks.append({"content": chunk.page_content, "meta": meta})
+        
+    return final_chunks
 
 
 # ---------------------------------------------------------------------------
@@ -1628,6 +1649,7 @@ class FinancialIngestionPipeline:
         self.embeddings = GoogleGenerativeAIEmbeddings(
             model=EMBEDDING_MODEL,
             google_api_key=api_key,
+            output_dimensionality=1536
         )
 
         # PGVector store — now receives the embeddings object directly
@@ -1965,7 +1987,7 @@ class FinancialIngestionPipeline:
                 t = getattr(node, "text", "").strip()
                 if not t:
                     continue
-                sub_chunks = split_text(t) if len(t) > CHUNK_SIZE else [t]
+                sub_chunks = parse_with_markdown_header_split(t) if len(t) > CHUNK_SIZE else [t]
                 for s in sub_chunks:
                     chunks.append({"content": s, "meta": _meta("text", label, label)})
                     idx += 1
